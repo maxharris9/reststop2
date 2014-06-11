@@ -65,7 +65,11 @@ _RESTstop.prototype.initAuth = function() {
         'password': this.params.password
       });
     } catch(e) {
-      return [e.error, {success: false, message: e.reason}];
+    	console.log('e.error: ', e.error);
+		return {
+			'messageType': 'LOGIN_ERROR',
+			'payload': { success: false, message: e.reason, errorCode: e.error }
+		}
     }
 
     // Get the user object
@@ -79,10 +83,13 @@ _RESTstop.prototype.initAuth = function() {
     RESTstop._config.onLoggedIn.apply(context);
 
     login.success = true;
-    return login;
+	return {
+		'messageType': 'LOGIN_OK',
+		'payload': login
+	};
   });
 
-  RESTstop.add('logout', {'method': 'GET', require_login: true}, function() {
+  RESTstop.add('logout', {'method': 'GET', require_login: true}, function () {
     var loginToken = this.params.loginToken;
     if(this.request.headers['x-login-token']) {
       loginToken = this.request.headers['x-login-token'];
@@ -94,6 +101,9 @@ _RESTstop.prototype.initAuth = function() {
 
     RESTstop._config.onLoggedOut.call(this);
 
-    return {success: true, message: "You've been logged out!"};
+	return {
+		'messageType': 'LOGOUT_OK',
+		'payload': { success: true, message: "You've been logged out!" }
+	};
   });
 };
